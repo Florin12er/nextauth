@@ -21,8 +21,14 @@ import { FormError } from "../FormError";
 import { FormSuccess } from "../FormSucces";
 import { login } from "@/actions/login";
 
+type LoginResult =
+  | {
+      error: string;
+    }
+  | undefined;
+
 export const LoginForm = () => {
-  const [success, setSucces] = useState<string | undefined>("");
+  const [success, setSuccess] = useState<string | undefined>("");
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
 
@@ -34,15 +40,23 @@ export const LoginForm = () => {
     },
   });
 
-  const onSubmit = (data: z.infer<typeof LoginSchema>) => {
+  const onSubmit = (formData: z.infer<typeof LoginSchema>) => {
     setError("");
-    setSucces("");
+    setSuccess("");
 
     startTransition(() => {
-      login(data).then((data) => {
-        setError(data.error);
-        setSucces(data.succes);
-      });
+      login(formData)
+        .then((result: LoginResult) => {
+          if (result) {
+            setError(result.error);
+          } else {
+            setSuccess("Login successful");
+          }
+        })
+        .catch((error) => {
+          setError("An unexpected error occurred");
+          console.error(error);
+        });
     });
   };
 
