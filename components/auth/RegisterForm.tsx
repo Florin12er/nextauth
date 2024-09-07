@@ -1,7 +1,6 @@
 "use client";
 
 import * as z from "zod";
-import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
 import { RegisterSchema } from "@/schemas";
 import { Button } from "../ui/button";
@@ -9,6 +8,7 @@ import { Input } from "../ui/input";
 import { CardWrapper } from "./CardWrapper";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 
 import {
   Form,
@@ -23,10 +23,10 @@ import { FormSuccess } from "../FormSucces";
 import { register } from "@/actions/register";
 
 export const RegisterForm = () => {
-  const router = useRouter();
   const [success, setSucces] = useState<string | undefined>("");
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
@@ -47,6 +47,9 @@ export const RegisterForm = () => {
         setSucces(data.succes);
       });
     });
+  };
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -77,7 +80,6 @@ export const RegisterForm = () => {
                 </FormItem>
               )}
             />
-
             <FormField
               control={form.control}
               name="email"
@@ -103,14 +105,25 @@ export const RegisterForm = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      disabled={isPending}
-                      placeholder="********"
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
+                  <div className="flex justify-center">
+                    <FormControl>
+                      <Input
+                        disabled={isPending}
+                        placeholder="********"
+                        type={showPassword ? "text" : "password"}
+                        {...field}
+                      />
+                    </FormControl>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="ml-2"
+                      onClick={togglePasswordVisibility}
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </Button>
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}

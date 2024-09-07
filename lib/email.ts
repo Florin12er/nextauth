@@ -8,6 +8,27 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+export const sendTwoFactorCode = async (email: string, code: string) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Two-Factor Authentication",
+    html: `
+      <h1>Two-Factor Authentication</h1>
+      <p>Your two-factor authentication code is:</p>
+      <h2>${code}</h2>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Two-factor code sent successfully");
+  } catch (error) {
+    console.error("Error sending two-factor code:", error);
+    throw error;
+  }
+};
+
 export const sendVerificationEmail = async (email: string, token: string) => {
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -25,6 +46,26 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     console.log("Verification email sent successfully");
   } catch (error) {
     console.error("Error sending verification email:", error);
+    throw error;
+  }
+};
+export const sendResetPasswordEmail = async (email: string, token: string) => {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Password Reset",
+    html: `
+      <h1>Reset Your Password</h1>
+      <p>Please click the link below to reset your password:</p>
+      <a href="${process.env.NEXT_PUBLIC_APP_URL}/auth/new-password?token=${token}">Reset Password</a>
+    `,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log("Password reset email sent successfully");
+  } catch (error) {
+    console.error("Error sending password reset email:", error);
     throw error;
   }
 };

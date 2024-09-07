@@ -4,6 +4,7 @@
  */
 export const publicRoutes: string[] = [
   "/", // Home
+  "/auth/new-verification",
 ];
 
 /**
@@ -20,6 +21,8 @@ export const authRoutes: string[] = [
   "/auth/login",
   "/auth/register",
   "/auth/error",
+  "/auth/reset",
+  "/auth/new-password",
 ];
 
 /**

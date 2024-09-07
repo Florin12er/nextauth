@@ -2,6 +2,7 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import authConfig from "./auth.config";
 import { getUserById } from "./data/user";
+import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation";
 import { db } from "./lib/db";
 import { JWT } from "next-auth/jwt";
 
@@ -46,6 +47,22 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       // prevent sign without email verification
       if (!existingUser?.emailVerified) {
         return false;
+      }
+      // prevent sign in if two factor is enabled
+      if (existingUser.isTwoFactorEnabled) {
+        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(
+          existingUser.id,
+        );
+        if (!twoFactorConfirmation) {
+          return false;
+        }
+
+        // Delete two factor confirmation for next sign in
+        await db.twoFactorConfirmation.delete({
+          where: {
+            id: twoFactorConfirmation.id,
+          },
+        });
       }
 
       return true;
