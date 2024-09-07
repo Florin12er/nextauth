@@ -16,7 +16,11 @@ export const privateRoutes: string[] = [];
  * An array of routes used for authentication
  * These routes will autmatically redict to the dashboard
  */
-export const authRoutes: string[] = ["/auth/login", "/auth/register"];
+export const authRoutes: string[] = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/error",
+];
 
 /**
  * Prefix for API routes
