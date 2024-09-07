@@ -1,6 +1,7 @@
 "use client";
 
 import * as z from "zod";
+import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
 import { RegisterSchema } from "@/schemas";
 import { Button } from "../ui/button";
@@ -22,6 +23,7 @@ import { FormSuccess } from "../FormSucces";
 import { register } from "@/actions/register";
 
 export const RegisterForm = () => {
+  const router = useRouter();
   const [success, setSucces] = useState<string | undefined>("");
   const [error, setError] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();

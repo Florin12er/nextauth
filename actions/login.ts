@@ -3,8 +3,11 @@ import * as z from "zod";
 
 import { AuthError } from "next-auth";
 import { LoginSchema } from "@/schemas";
+import { generateVerificationToken } from "@/lib/tokens";
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import { getUserByEmail } from "@/data/user";
+import { sendVerificationEmail } from "@/lib/email";
 
 export const login = async (values: z.infer<typeof LoginSchema>) => {
   const validateFields = LoginSchema.safeParse(values);
@@ -16,6 +19,22 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
   }
 
   const { email, password } = validateFields.data;
+
+  const existingUser = await getUserByEmail(email);
+
+  if (!existingUser || !existingUser.email || !existingUser.password) {
+    return {
+      error: "Invalid email or password",
+    };
+  }
+
+  if (!existingUser.emailVerified) {
+    const verificationToken = await generateVerificationToken(
+      existingUser.email,
+    );
+    sendVerificationEmail(existingUser.email, verificationToken.token);
+    return { succes: "Confirmation email sent" };
+  }
 
   try {
     await signIn("credentials", {
