@@ -10,12 +10,14 @@ declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       role: "ADMIN" | "USER";
+      isTwoFactorEnabled: boolean;
     } & DefaultSession["user"];
   }
 }
 declare module "next-auth/jwt" {
   interface JWT {
     role?: "ADMIN" | "USER";
+    isTwoFactorEnabled?: boolean;
   }
 }
 
@@ -75,6 +77,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.role = token.role;
       }
 
+      if (session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
+      }
+
       return session;
     },
     async jwt({ token }: { token: JWT }) {
@@ -88,6 +94,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       }
 
       token.role = existingUser.role as "ADMIN" | "USER";
+      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
 
       return token;
     },
