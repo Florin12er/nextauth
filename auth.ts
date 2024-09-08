@@ -5,12 +5,14 @@ import { getUserById } from "./data/user";
 import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation";
 import { db } from "./lib/db";
 import { JWT } from "next-auth/jwt";
+import { getAccountByUserId } from "./data/account";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
     user: {
       role: "ADMIN" | "USER";
       isTwoFactorEnabled: boolean;
+      isOAuth: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -18,6 +20,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     role?: "ADMIN" | "USER";
     isTwoFactorEnabled?: boolean;
+    isOAuth?: boolean;
   }
 }
 
@@ -81,6 +84,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
       }
 
+      if (session.user) {
+        session.user.name = token.name as string;
+        session.user.email = token.email as string;
+        session.user.isOAuth = token.isAOuth as boolean;
+      }
+
       return session;
     },
     async jwt({ token }: { token: JWT }) {
@@ -93,6 +102,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         return token;
       }
 
+      const existingAccount = await getAccountByUserId(existingUser.id);
+
+      token.isAOuth = !!existingAccount;
+      token.name = existingUser.name;
+      token.email = existingUser.email;
       token.role = existingUser.role as "ADMIN" | "USER";
       token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
 

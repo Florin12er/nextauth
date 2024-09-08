@@ -13,14 +13,15 @@ enum UserRole {
 }
 
 model User {
-    id                    String    @id @default(auto()) @map("_id") @db.ObjectId
+    id                    String                 @id @default(auto()) @map("_id") @db.ObjectId
     name                  String?
-    email                 String?   @unique
+    email                 String?                @unique
+    newEmail              String?
     emailVerified         DateTime?
     image                 String?
-    password              String?   @db.String
-    role                  UserRole  @default(USER)
-    isTwoFactorEnabled    Boolean   @default(false)
+    password              String?                @db.String
+    role                  UserRole               @default(USER)
+    isTwoFactorEnabled    Boolean                @default(false)
     twoFactorConfirmation TwoFactorConfirmation?
     accounts              Account[]
 
@@ -77,9 +78,9 @@ model TwoFactorToken {
 }
 
 model TwoFactorConfirmation {
-    id      String   @id @default(auto()) @map("_id") @db.ObjectId
-    userId  String   @db.ObjectId
-    user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id     String @id @default(auto()) @map("_id") @db.ObjectId
+    userId String @db.ObjectId
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([userId])
     @@map("twofactorconfirmations")
